@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
-import { siteUrl } from "@/lib/env";
+import { requestOrigin } from "@/lib/env";
 import { emailSchema, emailDomain } from "@/lib/auth/domains";
 import { safeNext } from "@/lib/auth/next-url";
 
@@ -60,7 +60,10 @@ export async function requestOtp(_prev: LoginState, formData: FormData): Promise
     email,
     options: {
       shouldCreateUser: true,
-      emailRedirectTo: `${siteUrl()}/auth/callback?next=${encodeURIComponent(next)}`,
+      // Built from the request's own origin, so the emailed link returns the
+      // student to the site they signed in from rather than to whatever a
+      // build-time environment variable happened to say.
+      emailRedirectTo: `${await requestOrigin()}/auth/callback?next=${encodeURIComponent(next)}`,
     },
   });
 

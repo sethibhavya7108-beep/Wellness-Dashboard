@@ -49,6 +49,10 @@ export function publicEnv(): PublicEnv {
  *
  * Never hard-code a Vercel domain: prefer the explicitly configured site URL,
  * then Vercel's own project URL, then localhost for development.
+ *
+ * Prefer `requestOrigin()` in a server action or route handler — it works
+ * without any environment variable being set, which is the failure this
+ * function kept producing on a fresh deploy.
  */
 export function siteUrl(): string {
   const configured = process.env.NEXT_PUBLIC_SITE_URL;
@@ -58,4 +62,34 @@ export function siteUrl(): string {
   if (vercel) return `https://${vercel.replace(/\/$/, "")}`;
 
   return "http://localhost:3000";
+}
+
+/**
+ * The origin the current request actually arrived on.
+ *
+ * A deploy where `NEXT_PUBLIC_SITE_URL` was never set used to fall all the way
+ * through to localhost, so the sign-in email sent production users to their own
+ * machine. Reading the request's own host removes that whole class of mistake:
+ * the link points wherever the student already is.
+ *
+ * The Host header is caller-controlled, so this is not a trust boundary. It is
+ * safe here only because Supabase refuses any `emailRedirectTo` that is not on
+ * the project's redirect allow-list — that list is the actual control.
+ * An explicitly configured site URL still wins, so a canonical domain can be
+ * pinned when one exists.
+ */
+export async function requestOrigin(): Promise<string> {
+  const configured = process.env.NEXT_PUBLIC_SITE_URL;
+  if (configured) return configured.replace(/\/$/, "");
+
+  const { headers } = await import("next/headers");
+  const h = await headers();
+  const host = h.get("x-forwarded-host") ?? h.get("host");
+
+  if (host) {
+    const proto = h.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https");
+    return `${proto}://${host}`;
+  }
+
+  return siteUrl();
 }
