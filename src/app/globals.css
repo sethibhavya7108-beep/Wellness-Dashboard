@@ -1,26 +1,144 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/*
+  Campus Wellness — Design tokens ("Ink & Saffron")
+  Single source of truth for colour, type scale, spacing and radii.
+  Do not hard-code hex values in components. See /docs/DESIGN_SYSTEM.md.
+*/
+
+@theme {
+  /* ---- Surfaces & text ---- */
+  --color-ink: #0f1115;
+  --color-ink-soft: #2a2d34;
+  --color-muted: #6b6759;
+  --color-faint: #98937f;
+  --color-paper: #faf8f4;
+  --color-surface: #ffffff;
+  --color-raised: #f4f1ea;
+  --color-line: #e6e1d8;
+  --color-line-strong: #d5cec0;
+
+  /* ---- Accent: saffron ---- */
+  --color-accent: #c8611a;
+  --color-accent-hover: #a94e14;
+  --color-accent-soft: #fbf0e6;
+  --color-accent-line: #f0d9c3;
+
+  /* ---- Secondary: deep green ---- */
+  --color-forest: #1f4d3d;
+  --color-forest-hover: #163a2d;
+  --color-forest-soft: #edf3f0;
+  --color-forest-line: #cfe0d8;
+
+  /* ---- Status (wellness categories use these, never raw hex) ---- */
+  --color-status-good: #1f4d3d;
+  --color-status-fair: #b4772a;
+  --color-status-attention: #c05621;
+  --color-status-priority: #a32b26;
+  --color-status-good-soft: #edf3f0;
+  --color-status-fair-soft: #fbf3e6;
+  --color-status-attention-soft: #fbeee6;
+  --color-status-priority-soft: #faeceb;
+
+  /* ---- Charts: ordered categorical ramp ---- */
+  --color-chart-1: #1f4d3d;
+  --color-chart-2: #c8611a;
+  --color-chart-3: #3d6b8a;
+  --color-chart-4: #8a6d3b;
+  --color-chart-5: #6b5b8a;
+  --color-chart-6: #a32b26;
+
+  /* ---- Type ---- */
+  --font-display: var(--font-fraunces), Georgia, "Times New Roman", serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  /* ---- Radii: restrained, editorial ---- */
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+  --radius-xl: 14px;
+
+  /* ---- Layout ---- */
+  --spacing-section: 5.5rem;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  body {
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-feature-settings: "cv02", "cv03", "cv04";
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /* Visible, consistent keyboard focus everywhere. */
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+    border-radius: var(--radius-xs);
+  }
+
+  ::selection {
+    background-color: var(--color-accent-soft);
+    color: var(--color-ink);
+  }
+
+  /* Remove number-input spinners: assessment fields use explicit steppers. */
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button {
+    appearance: none;
+    margin: 0;
+  }
+
+  input[type="number"] {
+    -moz-appearance: textfield;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer components {
+  /* Editorial eyebrow label used above section headings. */
+  .eyebrow {
+    font-family: var(--font-sans);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+  }
+
+  /* Hairline rule used to separate editorial sections. */
+  .rule {
+    border-top: 1px solid var(--color-line);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
