@@ -72,6 +72,8 @@ export type ProfileRow = {
   consent_accepted_at: string | null;
   consent_version: string | null;
   profile_completed_at: string | null;
+  /** Opt-in, never assumed: a ranking is a public statement about a person. */
+  leaderboard_opt_in: boolean;
   created_at: string;
   updated_at: string;
 };
@@ -424,6 +426,49 @@ export type Database = {
       current_streak_days: {
         Args: { p_user_id: string };
         Returns: number;
+      };
+      consistency_rules: {
+        Args: Record<never, never>;
+        Returns: {
+          weekly_days_required: number;
+          weekly_points: number;
+          monthly_days_required: number;
+          monthly_points: number;
+        }[];
+      };
+      consistency_summary: {
+        Args: { p_user_id?: string };
+        Returns: {
+          week_start: string;
+          days_this_week: number;
+          weekly_target: number;
+          month_start: string;
+          days_this_month: number;
+          monthly_target: number;
+          current_streak: number;
+        }[];
+      };
+      award_consistency_points: {
+        Args: Record<never, never>;
+        Returns: void;
+      };
+      habit_history: {
+        Args: { p_days?: number };
+        Returns: {
+          roadmap_habit_id: string;
+          category: WellnessCategory;
+          checkin_date: string;
+          status: CheckinStatus;
+        }[];
+      };
+      get_daily_activity: {
+        Args: { p_days?: number };
+        Returns: {
+          day: string;
+          accounts_made: number;
+          signed_in: number;
+          checked_in: number;
+        }[];
       };
       evaluate_badges: {
         Args: Record<never, never>;

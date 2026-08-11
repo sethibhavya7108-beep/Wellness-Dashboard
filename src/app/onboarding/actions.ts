@@ -28,6 +28,8 @@ const profileSchema = z
       message: "Choose where you currently live",
     }),
     consent: z.literal("on", { message: "Please read and accept the notice to continue" }),
+    // An unticked checkbox sends nothing at all, which is exactly "no".
+    leaderboard_opt_in: z.literal("on").optional(),
   })
   .transform((v) => ({
     ...v,
@@ -52,6 +54,7 @@ export async function completeProfile(
     program_other: formData.get("program_other") ?? undefined,
     living_situation: formData.get("living_situation"),
     consent: formData.get("consent"),
+    leaderboard_opt_in: formData.get("leaderboard_opt_in") ?? undefined,
   });
 
   if (!parsed.success) {
@@ -82,6 +85,7 @@ export async function completeProfile(
       batch_year: parsed.data.batch_year,
       program: parsed.data.program,
       living_situation: parsed.data.living_situation,
+      leaderboard_opt_in: parsed.data.leaderboard_opt_in === "on",
       consent_accepted_at: now,
       consent_version: CONSENT_VERSION,
       profile_completed_at: now,

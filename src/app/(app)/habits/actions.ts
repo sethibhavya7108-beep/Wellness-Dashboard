@@ -45,6 +45,10 @@ export async function logCheckin(
     return { error: "We could not save that just now. Please try again." };
   }
 
+  // Both are idempotent and only ever pay for completed periods, so calling
+  // them on every check-in cannot double-award.
+  await supabase.rpc("award_consistency_points");
+
   const { data: badges } = await supabase.rpc("evaluate_badges");
 
   revalidatePath("/habits");

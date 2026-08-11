@@ -32,6 +32,12 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(new URL("/login?error=link_invalid", origin));
   }
 
+  await supabase.from("analytics_events").insert({
+    user_id: userId,
+    name: "signed_in",
+    properties: { method: "email_link" },
+  });
+
   const { data: profile } = await supabase
     .from("profiles")
     .select("profile_completed_at")

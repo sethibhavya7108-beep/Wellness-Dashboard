@@ -228,6 +228,27 @@ export function ProfileForm({ email, defaultName }: { email: string; defaultName
               </p>
             ) : null}
           </div>
+
+          {/* Separate from consent on purpose: appearing in a public ranking is a
+              different decision from agreeing to take part, and bundling the two
+              would make neither a real choice. */}
+          <div className="rounded-md border border-line bg-paper p-4">
+            <div className="flex gap-3">
+              <Checkbox id="leaderboard_opt_in" name="leaderboard_opt_in" />
+              <Label
+                htmlFor="leaderboard_opt_in"
+                className="cursor-pointer text-sm leading-relaxed"
+              >
+                Show my name on the campus leaderboard.
+                <span className="mt-1 block text-muted">
+                  Optional. The leaderboard ranks habits logged and events attended — never BMI,
+                  weight, stress or your wellness score. Leave this unticked and you still earn
+                  points and see your own rank; other students just will not see you. You can
+                  change this later.
+                </span>
+              </Label>
+            </div>
+          </div>
         </CardContent>
       </Card>
 

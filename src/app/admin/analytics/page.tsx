@@ -19,12 +19,13 @@ export default async function AdminAnalyticsPage() {
   // Aggregates only. Admins hold no row access to assessments, scores or
   // check-ins — these functions are the entire reporting surface, and each
   // withholds its result below the minimum cohort size.
-  const [stats, categories, distribution, comparison, engagement] = await Promise.all([
+  const [stats, categories, distribution, comparison, engagement, activity] = await Promise.all([
     supabase.rpc("get_participation_stats"),
     supabase.rpc("get_category_averages", { p_kind: "baseline" }),
     supabase.rpc("get_score_distribution"),
     supabase.rpc("get_baseline_endline_comparison"),
     supabase.rpc("get_habit_engagement"),
+    supabase.rpc("get_daily_activity", { p_days: 30 }),
   ]);
 
   const s = stats.data?.[0];
@@ -32,6 +33,11 @@ export default async function AdminAnalyticsPage() {
   const distributionRows = distribution.data ?? [];
   const comparisonRows = comparison.data ?? [];
   const engagementRows = engagement.data ?? [];
+  const activityRows = activity.data ?? [];
+  const activityPeak = Math.max(
+    1,
+    ...activityRows.map((r) => Math.max(r.accounts_made, r.signed_in, r.checked_in)),
+  );
 
   return (
     <Container width="wide" className="space-y-8 py-10">
@@ -58,6 +64,46 @@ export default async function AdminAnalyticsPage() {
           <StatCard label="Published events" value={s.events_published} />
         </div>
       ) : null}
+
+      {/* Participation over time. These are activity counts, not health data —
+          no assessment answer or score is reachable from this function. */}
+      <section className="space-y-4">
+        <h2 className="text-lg leading-snug">Last 30 days</h2>
+        <Card>
+          <CardContent className="space-y-4 p-6">
+            <div className="flex flex-wrap gap-4 text-xs text-muted">
+              <LegendKey className="bg-ink" label="Accounts made" />
+              <LegendKey className="bg-accent" label="Signed in" />
+              <LegendKey className="bg-forest" label="Logged a habit" />
+            </div>
+
+            <div className="flex h-32 items-end gap-[3px] overflow-x-auto">
+              {activityRows.map((row) => (
+                <div
+                  key={row.day}
+                  className="flex min-w-[10px] flex-1 flex-col justify-end gap-[2px]"
+                  title={`${row.day}: ${row.accounts_made} new, ${row.signed_in} signed in, ${row.checked_in} logged`}
+                >
+                  <Bar value={row.checked_in} peak={activityPeak} className="bg-forest" />
+                  <Bar value={row.signed_in} peak={activityPeak} className="bg-accent" />
+                  <Bar value={row.accounts_made} peak={activityPeak} className="bg-ink" />
+                </div>
+              ))}
+            </div>
+
+            <div className="flex justify-between text-[0.625rem] text-muted">
+              <span>{activityRows[0]?.day ?? ""}</span>
+              <span>{activityRows[activityRows.length - 1]?.day ?? ""}</span>
+            </div>
+
+            <div className="grid gap-4 border-t border-line pt-4 sm:grid-cols-3">
+              <Total label="New accounts" value={sum(activityRows, "accounts_made")} />
+              <Total label="Sign-ins" value={sum(activityRows, "signed_in")} />
+              <Total label="Days with a check-in" value={sum(activityRows, "checked_in")} />
+            </div>
+          </CardContent>
+        </Card>
+      </section>
 
       <section className="space-y-4">
         <h2 className="text-lg leading-snug">Where the campus stands</h2>
@@ -206,6 +252,41 @@ export default async function AdminAnalyticsPage() {
         </CardContent>
       </Card>
     </Container>
+  );
+}
+
+type ActivityRow = { day: string; accounts_made: number; signed_in: number; checked_in: number };
+
+function sum(rows: ActivityRow[], key: keyof Omit<ActivityRow, "day">): number {
+  return rows.reduce((total, row) => total + row[key], 0);
+}
+
+function Bar({ value, peak, className }: { value: number; peak: number; className: string }) {
+  if (value === 0) return null;
+  return (
+    <div
+      className={`w-full rounded-xs ${className}`}
+      // Floor at 3px so a single account on a quiet day is still visible.
+      style={{ height: `${Math.max((value / peak) * 100, 3)}%` }}
+    />
+  );
+}
+
+function LegendKey({ className, label }: { className: string; label: string }) {
+  return (
+    <span className="flex items-center gap-1.5">
+      <span className={`size-2.5 rounded-xs ${className}`} aria-hidden />
+      {label}
+    </span>
+  );
+}
+
+function Total({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="space-y-0.5">
+      <p className="text-xs font-medium tracking-wide text-muted uppercase">{label}</p>
+      <p className="text-xl tabular-nums text-ink">{value}</p>
+    </div>
   );
 }
 

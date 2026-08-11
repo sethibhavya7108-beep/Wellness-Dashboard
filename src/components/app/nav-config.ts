@@ -42,8 +42,8 @@ export const STUDENT_NAV: NavItem[] = [
 export const ADMIN_NAV: NavItem[] = [
   { href: "/admin", label: "Overview", icon: "dashboard", status: "live", primary: true },
   { href: "/admin/students", label: "Students", icon: "students", status: "live", primary: true },
-  { href: "/admin/analytics", label: "Analytics", icon: "progress", status: "planned" },
-  { href: "/admin/events", label: "Events", icon: "events", status: "planned" },
+  { href: "/admin/analytics", label: "Analytics", icon: "progress", status: "live" },
+  { href: "/admin/events", label: "Events", icon: "events", status: "live" },
   { href: "/admin/challenges", label: "Challenges", icon: "challenges", status: "planned" },
   { href: "/admin/content", label: "Content", icon: "learn", status: "planned" },
 ];

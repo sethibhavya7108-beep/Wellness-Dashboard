@@ -7,7 +7,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Container } from "@/components/ui/layout";
 import { EmptyState } from "@/components/ui/feedback";
 import { requireOnboardedUser } from "@/lib/auth/session";
-import { getActiveRoadmap } from "@/lib/wellness/roadmap-service";
+import {
+  getActiveRoadmap,
+  type RoadmapHabitWithTemplate,
+} from "@/lib/wellness/roadmap-service";
 import { getLatestScore } from "@/lib/wellness/latest-score";
 import { CATEGORY_RULES } from "@/lib/wellness/rules";
 import { formatDate } from "@/lib/utils";
@@ -65,6 +68,8 @@ export default async function RoadmapPage() {
   }
 
   const { roadmap, habits } = active;
+  const daily = habits.filter((h) => h.habit_templates?.frequency !== "weekly");
+  const weekly = habits.filter((h) => h.habit_templates?.frequency === "weekly");
 
   return (
     <Container width="wide" className="space-y-8 py-10">
@@ -76,6 +81,54 @@ export default async function RoadmapPage() {
           {formatDate(roadmap.cycle_start)} — {formatDate(roadmap.cycle_end)}
         </p>
       </header>
+
+      {/* Daily and weekly habits are shown apart because they are asked of you
+          differently: one is a thing you do today, the other a target you hit by
+          Sunday. Mixing them in one list makes a weekly habit look overdue every
+          day it has not been logged. */}
+      {daily.length > 0 ? (
+        <HabitGroup
+          title="Every day"
+          blurb="Log these as you go. Missing one day is not a broken cycle."
+          habits={daily}
+        />
+      ) : null}
+
+      {weekly.length > 0 ? (
+        <HabitGroup
+          title="Across the week"
+          blurb="Hit the target by the end of the week — the day you do it does not matter."
+          habits={weekly}
+        />
+      ) : null}
+
+      <div className="flex flex-wrap gap-3">
+        <Link href="/habits" className={buttonClasses()}>
+          Log today
+        </Link>
+        <Link href="/progress" className={buttonClasses({ variant: "outline" })}>
+          See your progress
+        </Link>
+      </div>
+    </Container>
+  );
+}
+
+function HabitGroup({
+  title,
+  blurb,
+  habits,
+}: {
+  title: string;
+  blurb: string;
+  habits: RoadmapHabitWithTemplate[];
+}) {
+  return (
+    <section className="space-y-4">
+      <div className="space-y-1">
+        <h2 className="text-lg leading-snug">{title}</h2>
+        <p className="text-sm text-muted">{blurb}</p>
+      </div>
 
       <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {habits.map((h) => (
@@ -90,23 +143,12 @@ export default async function RoadmapPage() {
                 <p className="flex-1 text-sm leading-relaxed text-muted">
                   {h.habit_templates?.description}
                 </p>
-                <p className="text-xs text-muted">
-                  {h.points} points each time you log it
-                </p>
+                <p className="text-xs text-muted">{h.points} points each time you log it</p>
               </CardContent>
             </Card>
           </li>
         ))}
       </ul>
-
-      <div className="flex flex-wrap gap-3">
-        <Link href="/habits" className={buttonClasses()}>
-          Log today
-        </Link>
-        <Link href="/progress" className={buttonClasses({ variant: "outline" })}>
-          See your progress
-        </Link>
-      </div>
-    </Container>
+    </section>
   );
 }

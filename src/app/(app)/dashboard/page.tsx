@@ -10,6 +10,9 @@ import { requireOnboardedUser } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { ROLE_LABELS } from "@/lib/auth/roles";
 import { getLatestScore } from "@/lib/wellness/latest-score";
+import { getConsistencySummary, getHabitCharts } from "@/lib/wellness/consistency";
+import { getActiveRoadmap } from "@/lib/wellness/roadmap-service";
+import { ConsistencyPanel } from "@/components/wellness/consistency-panel";
 import { overallLabel } from "@/components/wellness/score-display";
 import { formatDate } from "@/lib/utils";
 
@@ -52,6 +55,14 @@ export default async function DashboardPage() {
   const firstName = (profile?.full_name ?? "").trim().split(/\s+/)[0] || "there";
   const baselineDone = baseline?.status === "completed";
   const score = baselineDone ? await getLatestScore(ctx.userId) : null;
+
+  // Consistency and per-goal charts. Fetched together so the dashboard stays
+  // one round of parallel queries rather than a waterfall.
+  const [consistency, roadmap, charts] = await Promise.all([
+    getConsistencySummary(),
+    getActiveRoadmap(ctx.userId),
+    getHabitCharts(28),
+  ]);
 
   return (
     <Container width="wide" className="space-y-8 py-10">
@@ -104,6 +115,15 @@ export default async function DashboardPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* -------------------------------------------------- Consistency and goals */}
+      {roadmap ? (
+        <ConsistencyPanel
+          summary={consistency}
+          habits={roadmap.habits}
+          charts={charts}
+        />
+      ) : null}
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* ---------------------------------------------------------- Your details */}

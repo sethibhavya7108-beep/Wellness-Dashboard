@@ -105,6 +105,14 @@ export async function verifyOtp(_prev: LoginState, formData: FormData): Promise<
     };
   }
 
+  // Recorded so the admin dashboard can count daily sign-ins. Carries no
+  // health data and no device fingerprint — just that a session began.
+  await supabase.from("analytics_events").insert({
+    user_id: data.user.id,
+    name: "signed_in",
+    properties: { method: "otp_code" },
+  });
+
   const { data: profile } = await supabase
     .from("profiles")
     .select("profile_completed_at")
