@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { BookOpen, CalendarDays, CheckCircle2, ClipboardList, MapPin } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { buttonClasses } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Container } from "@/components/ui/layout";
 import { EmptyState } from "@/components/ui/feedback";
@@ -78,8 +80,7 @@ export default async function DashboardPage() {
 
             {baselineDone ? (
               <p className="text-sm leading-relaxed text-muted">
-                Completed on {formatDate(baseline.completed_at ?? new Date())}. Your summary and
-                roadmap appear here once the scoring release ships.
+                Completed on {formatDate(baseline.completed_at ?? new Date())}.
               </p>
             ) : (
               <p className="max-w-2xl text-sm leading-relaxed text-muted">
@@ -88,10 +89,14 @@ export default async function DashboardPage() {
               </p>
             )}
 
-            <p className="pt-1 text-xs text-muted">
-              The check opens in the next release. Everything behind it — the scoring rules, the
-              habit library and the database — is already in place.
-            </p>
+            <div className="pt-2">
+              <Link
+                href="/assessment"
+                className={buttonClasses({ variant: baselineDone ? "outline" : "primary" })}
+              >
+                {baselineDone ? "View your check" : "Start the check"}
+              </Link>
+            </div>
           </div>
         </CardContent>
       </Card>
