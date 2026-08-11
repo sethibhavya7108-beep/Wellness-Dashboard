@@ -392,6 +392,22 @@ export type Database = {
         Args: Record<never, never>;
         Returns: { code: string; name: string }[];
       };
+      register_for_event: {
+        Args: { p_event_id: string };
+        Returns: RegistrationStatus;
+      };
+      cancel_event_registration: {
+        Args: { p_event_id: string };
+        Returns: void;
+      };
+      mark_event_attendance: {
+        Args: { p_event_id: string; p_user_id: string; p_attended: boolean };
+        Returns: void;
+      };
+      event_registration_count: {
+        Args: { p_event_id: string };
+        Returns: number;
+      };
     };
     Enums: {
       app_role: AppRole;

@@ -34,8 +34,8 @@ export const STUDENT_NAV: NavItem[] = [
   { href: "/roadmap", label: "Roadmap", icon: "roadmap", status: "live", primary: true },
   { href: "/habits", label: "Habits", icon: "habits", status: "live", primary: true },
   { href: "/progress", label: "Progress", icon: "progress", status: "live" },
-  { href: "/events", label: "Events", icon: "events", status: "planned", primary: true },
-  { href: "/content", label: "Learn", icon: "learn", status: "planned" },
+  { href: "/events", label: "Events", icon: "events", status: "live", primary: true },
+  { href: "/content", label: "Learn", icon: "learn", status: "live" },
   { href: "/leaderboard", label: "Leaderboard", icon: "leaderboard", status: "live" },
 ];
 
