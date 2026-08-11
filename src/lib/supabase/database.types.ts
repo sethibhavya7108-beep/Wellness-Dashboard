@@ -309,6 +309,43 @@ export type LeaderboardEntry = {
   is_self: boolean;
 };
 
+/**
+ * Aggregate reporting shapes (migration 0007).
+ *
+ * Admins hold no row access to health data; these are the only figures they
+ * ever see, and each is suppressed below a minimum cohort size.
+ */
+export type ParticipationStats = {
+  students_onboarded: number;
+  baselines_completed: number;
+  endlines_completed: number;
+  active_roadmaps: number;
+  checkins_last_7_days: number;
+  events_published: number;
+};
+
+export type CategoryAverage = {
+  category: WellnessCategory;
+  student_count: number;
+  average_score: number;
+  flagged_count: number;
+};
+
+export type BaselineEndlineRow = {
+  category: WellnessCategory;
+  student_count: number;
+  baseline_average: number;
+  endline_average: number;
+  change: number;
+};
+
+export type HabitEngagementRow = {
+  category: WellnessCategory;
+  habits_assigned: number;
+  checkins_logged: number;
+  completion_rate: number;
+};
+
 export type Database = {
   public: {
     Tables: {
@@ -407,6 +444,26 @@ export type Database = {
       event_registration_count: {
         Args: { p_event_id: string };
         Returns: number;
+      };
+      get_participation_stats: {
+        Args: Record<never, never>;
+        Returns: ParticipationStats[];
+      };
+      get_category_averages: {
+        Args: { p_kind?: AssessmentKind };
+        Returns: CategoryAverage[];
+      };
+      get_score_distribution: {
+        Args: Record<never, never>;
+        Returns: { band: string; student_count: number }[];
+      };
+      get_baseline_endline_comparison: {
+        Args: Record<never, never>;
+        Returns: BaselineEndlineRow[];
+      };
+      get_habit_engagement: {
+        Args: Record<never, never>;
+        Returns: HabitEngagementRow[];
       };
     };
     Enums: {
