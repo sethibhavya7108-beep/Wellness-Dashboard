@@ -2,8 +2,36 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import {
+  BookOpen,
+  CalendarDays,
+  ClipboardList,
+  LayoutDashboard,
+  ListChecks,
+  Route,
+  Trophy,
+  TrendingUp,
+  Users,
+  type LucideIcon,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { NavItem } from "./nav-config";
+import type { NavIconName, NavItem } from "./nav-config";
+
+/**
+ * Icons resolve here rather than in `nav-config.ts`: a component reference is
+ * not serializable, so it cannot be passed from a server layout to this file.
+ */
+const ICONS: Record<NavIconName, LucideIcon> = {
+  dashboard: LayoutDashboard,
+  roadmap: Route,
+  habits: ListChecks,
+  progress: TrendingUp,
+  events: CalendarDays,
+  learn: BookOpen,
+  leaderboard: Trophy,
+  students: Users,
+  challenges: ClipboardList,
+};
 
 function useIsActive() {
   const pathname = usePathname();
@@ -63,9 +91,10 @@ export function AppNavMobile({ items }: { items: NavItem[] }) {
       <ul className="mx-auto flex max-w-md">
         {primary.map((item) => {
           const active = item.status === "live" && isActive(item.href);
+          const Icon = ICONS[item.icon];
           const content = (
             <>
-              <item.icon className="size-5" aria-hidden />
+              <Icon className="size-5" aria-hidden />
               <span className="text-[0.6875rem] leading-none">{item.label}</span>
             </>
           );
