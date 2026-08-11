@@ -31,12 +31,12 @@ export type NavItem = {
 
 export const STUDENT_NAV: NavItem[] = [
   { href: "/dashboard", label: "Dashboard", icon: "dashboard", status: "live", primary: true },
-  { href: "/roadmap", label: "Roadmap", icon: "roadmap", status: "planned", primary: true },
-  { href: "/habits", label: "Habits", icon: "habits", status: "planned", primary: true },
-  { href: "/progress", label: "Progress", icon: "progress", status: "planned" },
+  { href: "/roadmap", label: "Roadmap", icon: "roadmap", status: "live", primary: true },
+  { href: "/habits", label: "Habits", icon: "habits", status: "live", primary: true },
+  { href: "/progress", label: "Progress", icon: "progress", status: "live" },
   { href: "/events", label: "Events", icon: "events", status: "planned", primary: true },
   { href: "/content", label: "Learn", icon: "learn", status: "planned" },
-  { href: "/leaderboard", label: "Leaderboard", icon: "leaderboard", status: "planned" },
+  { href: "/leaderboard", label: "Leaderboard", icon: "leaderboard", status: "live" },
 ];
 
 export const ADMIN_NAV: NavItem[] = [

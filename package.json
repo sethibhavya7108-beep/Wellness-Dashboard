@@ -9,7 +9,8 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "test:scoring": "tsx scripts/test-scoring.ts",
-    "test": "npm run test:scoring",
+    "test:roadmap": "tsx scripts/test-roadmap.ts",
+    "test": "npm run test:scoring && npm run test:roadmap",
     "db:types": "supabase gen types typescript --project-id $SUPABASE_PROJECT_ID --schema public > src/lib/supabase/database.types.ts",
     "test:db": "psql \"$DATABASE_URL\" -v ON_ERROR_STOP=1 -f supabase/tests/01_policy_tests.sql"
   },

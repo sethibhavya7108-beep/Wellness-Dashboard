@@ -153,6 +153,11 @@ export async function completeAssessment(
   // when the rules file moves on. See persist-scores.ts.
   await persistScores(supabase, completed as AssessmentRow);
 
+  // Points and badges go through SECURITY DEFINER functions: students hold no
+  // INSERT grant on points_transactions or user_badges.
+  await supabase.rpc("award_assessment_points", { p_assessment_id: completed.id });
+  await supabase.rpc("evaluate_badges");
+
   await supabase.from("analytics_events").insert({
     user_id: user.id,
     name: "assessment_completed",

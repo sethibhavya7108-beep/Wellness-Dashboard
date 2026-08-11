@@ -369,6 +369,29 @@ export type Database = {
         Args: { result_limit?: number; result_offset?: number };
         Returns: LeaderboardEntry[];
       };
+      log_habit_checkin: {
+        Args: {
+          p_roadmap_habit_id: string;
+          p_status: CheckinStatus;
+          p_mood?: number | null;
+          p_energy?: number | null;
+          p_note?: string | null;
+          p_date?: string | null;
+        };
+        Returns: string;
+      };
+      award_assessment_points: {
+        Args: { p_assessment_id: string };
+        Returns: void;
+      };
+      current_streak_days: {
+        Args: { p_user_id: string };
+        Returns: number;
+      };
+      evaluate_badges: {
+        Args: Record<never, never>;
+        Returns: { code: string; name: string }[];
+      };
     };
     Enums: {
       app_role: AppRole;
