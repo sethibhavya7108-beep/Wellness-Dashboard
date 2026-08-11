@@ -117,7 +117,11 @@ export function rawValueFor(category: WellnessCategory, a: AssessmentRow): numbe
 export function computeBmi(heightCm: number | null, weightKg: number | null): BmiResult | null {
   if (!heightCm || !weightKg || heightCm <= 0) return null;
   const metres = heightCm / 100;
-  const value = round(weightKg / (metres * metres), 1);
+  return describeBmi(round(weightKg / (metres * metres), 1));
+}
+
+/** Band wording for a BMI that was computed and stored earlier. */
+export function describeBmi(value: number): BmiResult {
   const band = BMI_BANDS.find((b) => value >= b.min && value < b.max);
   return { value, label: band?.label ?? "Outside the usual range", reviewStatus: BMI_REVIEW_STATUS };
 }

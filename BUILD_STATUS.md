@@ -1,6 +1,6 @@
 # Build status
 
-Last updated: 2026-08-11 · Phases 0–2 complete.
+Last updated: 2026-08-11 · Phases 0–4 complete.
 
 Verified on this build:
 
@@ -45,11 +45,34 @@ Verified on this build:
 - Student dashboard reading real profile, event and content data with empty states.
 - Admin overview and student roster, every figure from a live query.
 
+### Phase 3 — Baseline assessment
+- Seven-section check with per-section autosave into an open draft.
+- Questions declared once in `assessment-fields.ts`, read by both the form and the server
+  validator, so what is shown and what is accepted cannot drift. Numeric bounds mirror the CHECK
+  constraints in `0001_init.sql`.
+- Every question optional; skipped categories are excluded from the score. Completion is refused
+  only below `MIN_PRIORITIES` answered categories.
+
+### Phase 4 — Scoring and results
+- Completing an assessment scores it and writes `wellness_scores` plus one row per category, each
+  tagged with `engine_version`.
+- Writes are on-conflict-do-nothing: the unique keys make a repeat a no-op, and neither table
+  grants UPDATE to students.
+- Results screen: overall score, every answered area, the 2–3 priorities, and BMI as context
+  carrying its pending-review status.
+
+---
+
+## Live project
+
+Supabase project `znilramhytccnwbansda`: migrations `0001`–`0004` applied, 19 tables, RLS on all,
+38 policies, seed data present. Authentication verified end to end against it.
+
 ---
 
 ## In progress
 
-Nothing. Phases 0–2 are closed.
+Nothing. Phases 0–4 are closed.
 
 ---
 
@@ -57,8 +80,6 @@ Nothing. Phases 0–2 are closed.
 
 | Phase | Scope |
 | --- | --- |
-| 3 | Baseline assessment — multi-step form, autosave, BMI, persistence |
-| 4 | Wire scoring to assessments; persist scores; results screen |
 | 5 | Roadmap engine — priority-to-habit assignment, cycles, difficulty |
 | 6 | Habit tracking — daily check-in, streaks, weekly summary, adaptation |
 | 7 | Gamification — points ledger, badges, leaderboard |

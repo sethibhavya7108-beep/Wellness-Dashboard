@@ -9,6 +9,8 @@ import { EmptyState } from "@/components/ui/feedback";
 import { requireOnboardedUser } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { ROLE_LABELS } from "@/lib/auth/roles";
+import { getLatestScore } from "@/lib/wellness/latest-score";
+import { overallLabel } from "@/components/wellness/score-display";
 import { formatDate } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Dashboard" };
@@ -49,6 +51,7 @@ export default async function DashboardPage() {
   const profile = ctx.profile;
   const firstName = (profile?.full_name ?? "").trim().split(/\s+/)[0] || "there";
   const baselineDone = baseline?.status === "completed";
+  const score = baselineDone ? await getLatestScore(ctx.userId) : null;
 
   return (
     <Container width="wide" className="space-y-8 py-10">
@@ -81,6 +84,7 @@ export default async function DashboardPage() {
             {baselineDone ? (
               <p className="text-sm leading-relaxed text-muted">
                 Completed on {formatDate(baseline.completed_at ?? new Date())}.
+                {score ? ` Your score is ${score.overallScore} out of 100 — ${overallLabel(score.overallScore).toLowerCase()}.` : ""}
               </p>
             ) : (
               <p className="max-w-2xl text-sm leading-relaxed text-muted">
@@ -91,10 +95,10 @@ export default async function DashboardPage() {
 
             <div className="pt-2">
               <Link
-                href="/assessment"
+                href={baselineDone ? "/assessment/results" : "/assessment"}
                 className={buttonClasses({ variant: baselineDone ? "outline" : "primary" })}
               >
-                {baselineDone ? "View your check" : "Start the check"}
+                {baselineDone ? "See your results" : "Start the check"}
               </Link>
             </div>
           </div>

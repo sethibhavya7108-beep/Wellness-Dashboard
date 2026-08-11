@@ -39,9 +39,12 @@ export default async function AssessmentPage() {
               Completed on {formatDate(completed.completed_at ?? completed.created_at)}. You retake
               this at the end of your cycle, which is what gives the chapter a real before and after.
             </p>
-            <div className="pt-2">
-              <Link href="/dashboard" className={buttonClasses()}>
-                Back to dashboard
+            <div className="flex justify-center gap-3 pt-2">
+              <Link href="/assessment/results" className={buttonClasses()}>
+                See your results
+              </Link>
+              <Link href="/dashboard" className={buttonClasses({ variant: "outline" })}>
+                Dashboard
               </Link>
             </div>
           </CardContent>

@@ -7,6 +7,7 @@ import { parseAssessment } from "@/lib/wellness/assessment-schema";
 import type { FieldName } from "@/lib/wellness/assessment-fields";
 import type { AssessmentKind, AssessmentRow } from "@/lib/supabase/database.types";
 import { scoreAssessment } from "@/lib/wellness/scoring";
+import { persistScores } from "@/lib/wellness/persist-scores";
 import { MIN_PRIORITIES } from "@/lib/wellness/rules";
 
 export type SaveResult =
@@ -132,19 +133,25 @@ export async function completeAssessment(
     };
   }
 
-  const { error: completeError } = await supabase
+  const { data: completed, error: completeError } = await supabase
     .from("assessments")
     .update({ status: "completed", completed_at: new Date().toISOString() })
     .eq("id", id)
-    .eq("status", "in_progress");
+    .eq("status", "in_progress")
+    .select("*")
+    .single();
 
-  if (completeError) {
+  if (completeError || !completed) {
     return {
       ok: false,
       error:
         "It looks like this check was already submitted. Refresh the page to see your summary.",
     };
   }
+
+  // Scores are stored, not recomputed on read, so the summary stays reproducible
+  // when the rules file moves on. See persist-scores.ts.
+  await persistScores(supabase, completed as AssessmentRow);
 
   await supabase.from("analytics_events").insert({
     user_id: user.id,
@@ -154,5 +161,5 @@ export async function completeAssessment(
 
   revalidatePath("/dashboard");
   revalidatePath("/assessment");
-  redirect("/dashboard");
+  redirect("/assessment/results");
 }
