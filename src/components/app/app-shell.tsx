@@ -31,10 +31,13 @@ export function AppShell({
           </div>
 
           <div className="flex shrink-0 items-center gap-3">
+            {/* Always visible, at every width. An organiser opening this on a
+                phone still needs the way in, and hiding it below `sm` made it
+                look as though the role had not been granted. */}
             {showAdminLink ? (
               <Link
                 href="/admin"
-                className="hidden items-center gap-1.5 rounded-md border border-line px-2.5 py-1.5 text-xs font-medium text-muted transition-colors hover:bg-raised hover:text-ink sm:inline-flex"
+                className="inline-flex items-center gap-1.5 rounded-md border border-accent-line bg-accent-soft px-2.5 py-1.5 text-xs font-medium text-accent transition-colors hover:bg-accent-soft/70"
               >
                 <ShieldCheck className="size-3.5" aria-hidden />
                 Admin
