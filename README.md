@@ -69,6 +69,10 @@ There is no service-role key in this project, by design. See `docs/SECURITY.md`.
    | `0002_functions_triggers.sql` | Authorization helpers, new-user provisioning, leaderboard |
    | `0003_rls.sql` | Row Level Security policies for every table |
    | `0004_seed.sql` | Approved domains, evidence sources, habit library, badges |
+   | `0005_habits_gamification.sql` | Check-ins, streaks, points, badge evaluation |
+   | `0006_events.sql` | Registration, capacity and deadline enforcement, attendance |
+   | `0007_analytics.sql` | Aggregate reporting with a minimum cohort size |
+   | `0008_harden_function_grants.sql` | Closes the RPC surface on trigger functions |
 
 3. **Turn on email OTP.** In **Authentication → Providers → Email**, make sure email is enabled.
 
@@ -143,16 +147,33 @@ Full detail in `docs/DEPLOYMENT.md`.
 
 ## Production checklist
 
-- [ ] Migrations `0001`–`0004` applied to the production project
-- [ ] `{{ .Token }}` present in the Magic Link email template
-- [ ] Site URL and redirect URLs configured in Supabase
-- [ ] Environment variables set in Vercel; `.env.local` not committed
+**Database and auth**
+- [x] Migrations `0001`–`0008` applied to the production project
+- [x] Site URL and redirect URLs configured in Supabase
+- [x] Environment variables set locally; `.env.local` not committed
+- [ ] `{{ .Token }}` present in the Magic Link email template — **blocked**: editing templates
+      requires custom SMTP. Until then the six-digit code screen has nothing to verify and only the
+      sign-in link works.
+- [ ] Custom SMTP configured (Resend, SendGrid or similar). The built-in sender only delivers to
+      members of the Supabase organisation and is capped at a few emails per hour, so it cannot
+      serve students.
+- [ ] `gmail.com` removed from `approved_email_domains` — added for testing only:
+      `delete from public.approved_email_domains where domain = 'gmail.com';`
 - [ ] At least one `super_admin` granted
-- [ ] `npm run build`, `npm run lint`, `npm run typecheck` and `npm run test:scoring` all pass
+- [ ] Environment variables set in the Vercel project
+
+**Verification**
+- [x] `npm run build`, `npm run lint`, `npm run typecheck` and `npm run test` all pass
+- [x] Security audit run against the live project — see `docs/SECURITY.md`
 - [ ] `npm run test:db` passes against a scratch database with the migrations applied
-- [ ] Every recommendation intended for students reviewed and marked `approved`
-- [ ] Consent text in `src/lib/auth/consent.ts` read and approved by the chapter
 - [ ] RLS verified: sign in as two students and confirm neither can read the other's data
+- [ ] One full student journey walked end to end: sign in, baseline, roadmap, check-in, results
+
+**Content and consent**
+- [ ] Every recommendation intended for students reviewed and marked `approved` — all five are
+      currently `pending_review`, which is why students see no medical claims
+- [ ] BMI bands in `rules.ts` reviewed, or BMI display left off
+- [ ] Consent text in `src/lib/auth/consent.ts` read and approved by the chapter
 
 ---
 

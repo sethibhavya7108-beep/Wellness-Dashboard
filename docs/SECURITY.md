@@ -93,13 +93,63 @@ reached production:
 The second is worth remembering as a general rule: **in this schema, a policy without a `to` clause
 is a bug.**
 
+## Audit against the live project
+
+Run against Supabase project `znilramhytccnwbansda` after migration `0008`.
+
+**The core property holds.** Every table holding individual health data — `assessments`,
+`wellness_scores`, `wellness_category_scores`, `habit_checkins`, `roadmaps`, `roadmap_habits`,
+`user_badges` — has RLS enabled and **no policy that calls `is_admin`, `has_role` or
+`has_any_role`**. There is no privileged read path to a student's health data. Verified by
+inspecting `pg_policies.qual` for every one of those tables, not by reading the migration.
+
+**Every `SECURITY DEFINER` function re-checks its caller.** Bypassing RLS means the check has to
+live in the function body:
+
+| Function | Check |
+| --- | --- |
+| `log_habit_checkin` | Habit must belong to `auth.uid()`, date must fall inside the cycle |
+| `award_assessment_points` | Returns silently unless the assessment's owner is `auth.uid()` |
+| `current_streak_days` | Resolves its own argument to null unless it equals `auth.uid()` |
+| `evaluate_badges` | Scoped to `auth.uid()`; no argument to point elsewhere |
+| `register_for_event` / `cancel_event_registration` | Act only on `auth.uid()`'s own registration |
+| `mark_event_attendance` | Requires `event_manager` (or admin) via `has_any_role` |
+| All five analytics functions | Require `is_admin()`, then suppress below the minimum cohort |
+
+`current_streak_days` is the one worth naming: it takes a user id and bypasses RLS, so without its
+caller check it would have read any student's check-in history from an id alone.
+
+**Closed in `0008`.** `handle_new_user`, `set_updated_at` and `protect_profile_identity` were
+reachable as `/rest/v1/rpc/<name>` through the default PUBLIC grant. Postgres refuses to run a
+trigger function called directly, so nothing could be done with them — but an endpoint that exists
+only to return an error should not exist. `EXECUTE` is now revoked from `public`, `anon` and
+`authenticated`. All 13 triggers still fire: a trigger function runs as the table owner during the
+statement, not as the caller.
+
+Confirmed after the change: the RPC path returns `PGRST202` (no such function), the sign-in domain
+gate still answers for `anon`, and an anonymous read of `assessments` still returns `[]`.
+
+### Accepted, with reasons
+
+- **`citext` lives in `public`** (advisor lint 0014). Moving it means rewriting the type of every
+  citext column and their dependent indexes and policies. That migration carries more risk than a
+  namespacing warning on a single-tenant project.
+- **Leaked-password protection is off.** There is no password flow at all — authentication is email
+  OTP only, and no password is ever set, stored or checked.
+- **`is_email_domain_approved` stays callable by `anon`.** The sign-in screen needs it, and it
+  reveals only whether a domain is on the allow-list — which the login page prints in plain text.
+
 ## Known gaps
 
-- Aggregate analytics functions with a minimum cohort size are not yet written.
 - No re-consent prompt when the consent version changes.
 - No self-service account deletion.
 - No audit log of admin actions.
 - Rate limiting relies on Supabase's email limits.
+- `AREA_ROLES` grants `event_manager`, `content_manager` and `reviewer` access to specific admin
+  areas, but `/admin` still gates on `requireAdmin`, so those entries are currently inert. Widening
+  that gate is an access-control decision that has not been taken.
+- The two-student read test in `01_policy_tests.sql` has been run against a local Postgres, not yet
+  against the live project with two real accounts.
 
 ## Reporting
 

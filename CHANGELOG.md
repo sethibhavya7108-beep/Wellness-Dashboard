@@ -1,5 +1,47 @@
 # Changelog
 
+## [0.3.0] — 2026-08-11 · Phases 3–13
+
+### Connected to a live project
+- Supabase project `znilramhytccnwbansda`. Migrations `0001`–`0008` applied and verified there.
+- Email OTP authentication confirmed working end to end against it.
+
+### Student product
+- **Baseline check** — seven sections with per-section autosave. Questions are declared once and
+  read by both the form and the server validator, so what is shown and what is accepted cannot
+  drift. Every question optional; skipped areas are excluded from the score, not zeroed.
+- **Scoring and results** — scores are stored with the `engine_version` that produced them rather
+  than recomputed, so a summary stays reproducible after the rules file moves on.
+- **Roadmap** — deterministic generation from the 2–3 priorities, one habit per category, starting
+  difficulty set by how far the student is from the target.
+- **Habits** — daily check-in, idempotent per habit per day, with streaks.
+- **Gamification** — points ledger, behaviour-only badges, leaderboard.
+- **Events and content** — registration with server-side capacity and deadline enforcement; an
+  awareness feed showing only published rows.
+
+### Reporting
+- `0007` adds five aggregate functions. Each requires `is_admin()` and withholds its result below a
+  cohort of five. The baseline-versus-endline comparison is within-subject.
+
+### Security
+- `0008` revokes the default PUBLIC EXECUTE grant on three trigger functions that PostgREST was
+  exposing as RPC endpoints. All 13 triggers still fire.
+- Audited the live project: every health table has RLS on and no policy anywhere calls an
+  admin-check function. There is no privileged read path to a student's health data.
+- Every `SECURITY DEFINER` function re-checks its caller. `current_streak_days` is the one that
+  mattered most: it takes a user id and bypasses RLS, so without its caller check it would have
+  read any student's check-in history from an id alone.
+
+### Testing
+- `scripts/test-roadmap.ts` — 19 assertions on determinism, the category and count caps, difficulty
+  selection and the weekly adaptation thresholds.
+
+### Not done
+- No custom SMTP, so no student outside the Supabase organisation can receive a sign-in email. This
+  is the one blocker to a pilot.
+- No signed-in walkthrough of the built screens.
+- Admin content, challenges and user management deferred.
+
 ## [0.2.0] — 2026-08-11 · Phases 0–2
 
 ### Documentation
