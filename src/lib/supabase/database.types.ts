@@ -461,6 +461,20 @@ export type Database = {
           status: CheckinStatus;
         }[];
       };
+      set_user_role: {
+        Args: { p_email: string; p_role: AppRole; p_grant?: boolean };
+        Returns: void;
+      };
+      list_team: {
+        Args: Record<never, never>;
+        Returns: {
+          user_id: string;
+          email: string;
+          full_name: string | null;
+          roles: AppRole[];
+          created_at: string;
+        }[];
+      };
       get_daily_activity: {
         Args: { p_days?: number };
         Returns: {

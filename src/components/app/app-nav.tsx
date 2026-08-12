@@ -9,6 +9,7 @@ import {
   LayoutDashboard,
   ListChecks,
   Route,
+  Settings,
   Trophy,
   TrendingUp,
   Users,
@@ -31,6 +32,7 @@ const ICONS: Record<NavIconName, LucideIcon> = {
   leaderboard: Trophy,
   students: Users,
   challenges: ClipboardList,
+  settings: Settings,
 };
 
 function useIsActive() {

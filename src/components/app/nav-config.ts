@@ -18,7 +18,8 @@ export type NavIconName =
   | "learn"
   | "leaderboard"
   | "students"
-  | "challenges";
+  | "challenges"
+  | "settings";
 
 export type NavItem = {
   href: string;
@@ -37,6 +38,7 @@ export const STUDENT_NAV: NavItem[] = [
   { href: "/events", label: "Events", icon: "events", status: "live", primary: true },
   { href: "/content", label: "Learn", icon: "learn", status: "live" },
   { href: "/leaderboard", label: "Leaderboard", icon: "leaderboard", status: "live" },
+  { href: "/settings", label: "Settings", icon: "settings", status: "live" },
 ];
 
 export const ADMIN_NAV: NavItem[] = [
@@ -46,4 +48,5 @@ export const ADMIN_NAV: NavItem[] = [
   { href: "/admin/events", label: "Events", icon: "events", status: "live" },
   { href: "/admin/challenges", label: "Challenges", icon: "challenges", status: "planned" },
   { href: "/admin/content", label: "Content", icon: "learn", status: "planned" },
+  { href: "/admin/team", label: "Team", icon: "settings", status: "live" },
 ];

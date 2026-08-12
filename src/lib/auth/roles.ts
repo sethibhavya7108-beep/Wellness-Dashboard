@@ -18,6 +18,11 @@ export function isAdmin(roles: readonly AppRole[]): boolean {
   return roles.some((r) => ADMIN_ROLES.includes(r));
 }
 
+/** Exact role check. Unlike isAdmin, super_admin does not imply anything here. */
+export function hasRole(roles: readonly AppRole[], role: AppRole): boolean {
+  return roles.includes(role);
+}
+
 export function canAccessArea(roles: readonly AppRole[], area: AdminArea): boolean {
   const allowed = AREA_ROLES[area] as readonly AppRole[];
   return roles.some((r) => allowed.includes(r));
