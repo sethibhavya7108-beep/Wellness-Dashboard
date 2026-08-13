@@ -19,17 +19,27 @@ export async function GET(request: NextRequest) {
 
   const supabase = await createClient();
   let userId: string | null = null;
+  let failure: string | null = null;
 
   if (tokenHash && type) {
     const { data, error } = await supabase.auth.verifyOtp({ type, token_hash: tokenHash });
-    if (!error) userId = data.user?.id ?? null;
+    if (error) failure = error.message;
+    else userId = data.user?.id ?? null;
   } else if (code) {
     const { data, error } = await supabase.auth.exchangeCodeForSession(code);
-    if (!error) userId = data.user?.id ?? null;
+    if (error) failure = error.message;
+    else userId = data.user?.id ?? null;
   }
 
   if (!userId) {
-    return NextResponse.redirect(new URL("/login?error=link_invalid", origin));
+    // The domain gate is enforced by handle_new_user() inside the signup
+    // transaction, so a personal Google account surfaces here as a provider
+    // error rather than anything OAuth understands. Name it plainly instead of
+    // telling someone their link expired when it did not.
+    const rejected = failure?.toLowerCase().includes("approved college email");
+    return NextResponse.redirect(
+      new URL(rejected ? "/login?error=domain_not_approved" : "/login?error=link_invalid", origin),
+    );
   }
 
   await supabase.from("analytics_events").insert({

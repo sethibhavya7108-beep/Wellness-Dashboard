@@ -4,6 +4,7 @@ import { Alert } from "@/components/ui/feedback";
 import { createClient } from "@/lib/supabase/server";
 import { safeNext } from "@/lib/auth/next-url";
 import { LoginForm } from "./login-form";
+import { GoogleButton } from "./google-button";
 
 export const metadata: Metadata = { title: "Sign in" };
 
@@ -57,7 +58,25 @@ export default async function LoginPage({
           </Alert>
         ) : null}
 
+        {params.error === "google_unavailable" ? (
+          <Alert tone="error" title="Google sign-in is not available">
+            Use your college email and a six-digit code instead.
+          </Alert>
+        ) : null}
+
+        {/* The database refuses the signup rather than the OAuth provider, so
+            this is what a personal Google account lands on. */}
+        {params.error === "domain_not_approved" ? (
+          <Alert tone="error" title="That account is not a college address">
+            Campus Wellness is limited to approved college domains. Sign in with your
+            {domains.length > 0 ? ` @${domains[0]} ` : " college "}
+            account.
+          </Alert>
+        ) : null}
+
         <LoginForm domains={domains} next={safeNext(params.next)} disabled={!configured} />
+
+        <GoogleButton next={safeNext(params.next)} disabled={!configured} />
       </div>
     </AuthShell>
   );
