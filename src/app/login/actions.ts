@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { requestOrigin } from "@/lib/env";
+import { OTP_LENGTH, OTP_PATTERN } from "@/lib/auth/otp";
 import { emailSchema, emailDomain } from "@/lib/auth/domains";
 import { safeNext } from "@/lib/auth/next-url";
 
@@ -14,7 +15,7 @@ const otpSchema = z.object({
   token: z
     .string()
     .trim()
-    .regex(/^\d{6}$/, "Enter the 6-digit code from your email"),
+    .regex(new RegExp(`^${OTP_PATTERN}$`), `Enter the ${OTP_LENGTH}-digit code from your email`),
 });
 
 /**

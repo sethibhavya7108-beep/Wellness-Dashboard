@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { OTP_LENGTH_WORD } from "@/lib/auth/otp";
 import { AuthShell } from "@/components/site/auth-shell";
 import { Alert } from "@/components/ui/feedback";
 import { createClient } from "@/lib/supabase/server";
@@ -39,7 +40,7 @@ export default async function LoginPage({
         <div className="space-y-2.5">
           <h1 className="text-3xl leading-tight">Sign in to Campus Wellness</h1>
           <p className="text-[0.9375rem] leading-relaxed text-muted">
-            We will email you a six-digit code. No password to remember, and your college email is
+            We will email you an {OTP_LENGTH_WORD}-digit code. No password to remember, and your college email is
             what keeps the platform limited to SSCBS students.
           </p>
         </div>
@@ -60,7 +61,7 @@ export default async function LoginPage({
 
         {params.error === "google_unavailable" ? (
           <Alert tone="error" title="Google sign-in is not available">
-            Use your college email and a six-digit code instead.
+            Use your college email and an {OTP_LENGTH_WORD}-digit code instead.
           </Alert>
         ) : null}
 

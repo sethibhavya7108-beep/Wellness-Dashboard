@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { OTP_LENGTH_WORD } from "@/lib/auth/otp";
 import { redirect } from "next/navigation";
 import { AuthShell } from "@/components/site/auth-shell";
 import { emailSchema } from "@/lib/auth/domains";
@@ -25,7 +26,7 @@ export default async function VerifyPage({
         <div className="space-y-2.5">
           <h1 className="text-3xl leading-tight">Check your email</h1>
           <p className="text-[0.9375rem] leading-relaxed text-muted">
-            We sent a six-digit code to{" "}
+            We sent an {OTP_LENGTH_WORD}-digit code to{" "}
             <span className="font-medium text-ink">{parsed.data}</span>. It is valid for one hour.
             The same email also contains a sign-in link, if that is easier.
           </p>

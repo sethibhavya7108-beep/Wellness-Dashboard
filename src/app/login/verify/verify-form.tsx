@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Field, Input, describedBy } from "@/components/ui/form";
 import { Alert } from "@/components/ui/feedback";
 import { requestOtp, verifyOtp, type LoginState } from "../actions";
+import { OTP_LENGTH, OTP_LENGTH_WORD, OTP_PATTERN, OTP_PLACEHOLDER } from "@/lib/auth/otp";
 
 const initial: LoginState = {};
 
@@ -12,7 +13,7 @@ export function VerifyForm({ email, next }: { email: string; next: string }) {
   const [state, formAction, pending] = useActionState(verifyOtp, initial);
   const [resendState, resendAction, resending] = useActionState(requestOtp, initial);
 
-  const hint = "Six digits, from the email we just sent.";
+  const hint = `${OTP_LENGTH_WORD.charAt(0).toUpperCase()}${OTP_LENGTH_WORD.slice(1)} digits, from the email we just sent.`;
 
   return (
     <div className="space-y-6">
@@ -35,12 +36,14 @@ export function VerifyForm({ email, next }: { email: string; next: string }) {
             name="token"
             inputMode="numeric"
             autoComplete="one-time-code"
-            pattern="\d{6}"
-            maxLength={6}
+            pattern={OTP_PATTERN}
+            maxLength={OTP_LENGTH}
             autoFocus
             required
-            placeholder="000000"
-            className="h-14 text-center font-display text-2xl tracking-[0.5em] tabular-nums"
+            placeholder={OTP_PLACEHOLDER}
+            // Tighter tracking at eight digits so the code still fits on a
+            // narrow phone without the field scrolling sideways.
+            className="h-14 text-center font-display text-2xl tracking-[0.3em] tabular-nums"
             aria-invalid={Boolean(state.fieldErrors?.token)}
             aria-describedby={describedBy("token", { hint, error: state.fieldErrors?.token })}
           />
